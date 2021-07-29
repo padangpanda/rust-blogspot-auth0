@@ -1,10 +1,81 @@
-use crate::Pool;
-use crate::models::models::{NewUser, User, InputUser};
-use crate::schema::users::dsl::{users};
-use crate::diesel::QueryDsl;
-use crate::diesel::RunQueryDsl;
-use actix_web::{web};
+// #![allow(unused)]
+// extern crate bcrypt;
+use crate::{
+    helpers::constants,
+    Pool,
+    models::{
+        response::{LoginResponse, ServiceError},
+        models::{NewUser, User, InputUserRegister, InputUserLogin, Claims}
+    },
+    schema::users,
+    schema::users::dsl::*,
+    diesel::{QueryDsl, RunQueryDsl, ExpressionMethods}
+};
+use jsonwebtoken::{encode, EncodingKey, Header};
+use chrono::{DateTime, Duration, Utc};
+use bcrypt::{DEFAULT_COST, hash, verify};
+use actix_web::{web, http::StatusCode};
 use diesel::dsl::{delete, insert_into};
+use validator::{Validate, ValidationErrors};
+
+pub fn register_handler(
+    db: web::Data<Pool>,
+    item: web::Form<InputUserRegister>,
+) -> Result<User, ValidationErrors> {
+    let conn = db.get().unwrap();
+    let hashed = hash(&item.password, DEFAULT_COST).unwrap();
+    let new_user = NewUser {
+        name: &item.name,
+        password: &hashed,
+        email: &item.email,
+        created_at: chrono::Local::now().naive_local(),
+    };
+    
+    match item.validate() {
+        Ok(_) => {
+            let res = insert_into(users).values(new_user).get_result(&conn).unwrap();
+            Ok(res)
+        },
+        Err(err) => Err(err)
+    }
+}
+
+pub fn login_handler(
+    db: web::Data<Pool>,
+    item: web::Form<InputUserLogin>
+) -> Result<LoginResponse, ServiceError> {
+    let conn = db.get().unwrap();
+    match users::table.filter(users::email.eq(item.email.to_string())).get_result::<User>(&conn) {
+        Ok(found_user) => {
+            println!("{:?}", &found_user);
+            match verify(&item.password, &found_user.password) {
+                Ok(true) => {
+                    // println!("{}", a);
+                    let key = "ayambetelor".as_bytes();
+                    let expired: DateTime<Utc> = Utc::now() + Duration::days(1);
+                    let my_claims = Claims {
+                        email: found_user.email.to_string(),
+                        exp: expired.timestamp() as usize
+                    };
+                    let token = encode(
+                        &Header::default(),
+                        &my_claims,
+                        &EncodingKey::from_secret(key)
+                    ).unwrap();
+                    Ok(LoginResponse {
+                        status: true,
+                        token,
+                        message: "berhasil login".to_string()
+                    })
+                },
+                Ok(false) => Err(ServiceError::new(StatusCode::UNAUTHORIZED, constants::MESSAGE_LOGIN_FAILED.to_string())),
+                Err(_) => Err(ServiceError::new(StatusCode::INTERNAL_SERVER_ERROR, constants::MESSAGE_INTERNAL_SERVER_ERROR.to_string()))
+            }
+        },
+        Err(_) => Err(ServiceError::new(StatusCode::UNAUTHORIZED, constants::MESSAGE_USER_NOT_FOUND.to_string()))
+    
+    }
+}
 
 pub fn get_all_users(pool: web::Data<Pool>) -> Result<Vec<User>, diesel::result::Error> {
     let conn = pool.get().unwrap();
@@ -15,21 +86,6 @@ pub fn get_all_users(pool: web::Data<Pool>) -> Result<Vec<User>, diesel::result:
 pub fn db_get_user_by_id(pool: web::Data<Pool>, user_id: i32) -> Result<User, diesel::result::Error> {
     let conn = pool.get().unwrap();
     users.find(user_id).get_result::<User>(&conn)
-}
-
-pub fn add_single_user(
-    db: web::Data<Pool>,
-    item: web::Json<InputUser>,
-) -> Result<User, diesel::result::Error> {
-    let conn = db.get().unwrap();
-    let new_user = NewUser {
-        first_name: &item.first_name,
-        last_name: &item.last_name,
-        email: &item.email,
-        created_at: chrono::Local::now().naive_local(),
-    };
-    let res = insert_into(users).values(new_user).get_result(&conn)?;
-    Ok(res)
 }
 
 pub fn delete_single_user(db: web::Data<Pool>, user_id: i32) -> Result<usize, diesel::result::Error> {

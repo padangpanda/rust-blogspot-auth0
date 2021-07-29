@@ -12,6 +12,7 @@ mod models;
 mod schema;
 mod auth;
 mod controllers;
+mod helpers;
 
 use routes::router;
 
@@ -35,11 +36,12 @@ async fn main() -> std::io::Result<()> {
         let auth = HttpAuthentication::bearer(auth::auth::validator);
         
         App::new()
-            .wrap(auth)
+            // .wrap(auth)
             .data(pool.clone())
             .route("/users", web::get().to(router::get_users))
             .route("/users/{id}", web::get().to(router::get_user_by_id))
-            .route("/users", web::post().to(router::add_user))
+            .route("/register", web::post().to(router::register))
+            .route("/login", web::post().to(router::login))
             .route("/users/{id}", web::delete().to(router::delete_user))
     })
     .bind("127.0.0.1:8080")?

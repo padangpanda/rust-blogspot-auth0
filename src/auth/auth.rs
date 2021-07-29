@@ -16,7 +16,7 @@ struct Claims {
 
 pub fn validate_token(token: &str) -> Result<bool, ServiceError> {
     let authority = std::env::var("AUTHORITY").expect("AUTHORITY must be set");
-    let jwks = fetch_jwks(&format!("{}{}", authority.as_str(), ".well-known/jwks.json"))
+    let jwks = fetch_jwks(&format!("{}.well-known/jwks.json", authority.as_str()))
         .expect("failed to fetch jwks");
     let validations = vec![Validation::Issuer(authority), Validation::SubjectPresent];
     let kid = match token_kid(&token) {
