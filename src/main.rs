@@ -2,7 +2,7 @@
 extern crate diesel;
 
 use actix_web::{web, App, HttpServer};
-use actix_web_httpauth::middleware::HttpAuthentication;
+// use actix_web_httpauth::middleware::HttpAuthentication;
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
 
@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
 
     // Start http server
     HttpServer::new(move || {
-        let auth = HttpAuthentication::bearer(auth::auth::validator);
+        // let auth = HttpAuthentication::bearer(auth::auth::validator);
         
         App::new()
             // .wrap(auth)

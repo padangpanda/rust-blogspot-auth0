@@ -1,6 +1,12 @@
+// extern crate passwords;
+
 use crate::schema::*;
 use serde::{Deserialize, Serialize};
-use validator::{Validate};
+use validator::{Validate, ValidationError};
+
+use passwords::analyzer;
+
+// use crate::helpers::validator::unique_email;
 
 #[derive(Debug, Serialize, Deserialize, Queryable)]
 pub struct User {
@@ -26,8 +32,21 @@ pub struct InputUserRegister {
     pub name: String,
     #[validate(email)]
     pub email: String,
-    #[validate(length(min = 8))]
+    #[validate(length(min = 8), custom = "contain_everything")]
     pub password: String,
+}
+
+fn contain_everything(password: &str) -> Result<(), ValidationError> {
+    let tobe_checked = analyzer::analyze(password);
+    let uppercase = tobe_checked.uppercase_letters_count();
+    let lowercase = tobe_checked.lowercase_letters_count();
+    let number = tobe_checked.numbers_count();
+
+    if uppercase >= 1 && number >= 1 && lowercase >= 1 {
+        return Ok(())
+    }
+    
+    return Err(ValidationError::new("Password must contain uppercase lowercase and numbers!"));
 }
 
 #[derive(Debug, Serialize, Deserialize)]

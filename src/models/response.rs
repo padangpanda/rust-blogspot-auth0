@@ -6,10 +6,15 @@ use actix_web::{
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LoginResponse {
-    pub message: String,
-    pub status: bool,
+    pub email: String,
+    pub username: String,
     pub token: String,
 }
+
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct RegisterResponse {
+//     pub message: String,
+// }
 
 // EROR RESPONSE
 #[derive(Debug)]

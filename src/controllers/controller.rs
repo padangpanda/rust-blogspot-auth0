@@ -4,7 +4,7 @@ use crate::{
     helpers::constants,
     Pool,
     models::{
-        response::{LoginResponse, ServiceError},
+        response::{LoginResponse, ServiceError, ResponseBody},
         models::{NewUser, User, InputUserRegister, InputUserLogin, Claims}
     },
     schema::users,
@@ -21,7 +21,7 @@ use validator::{Validate, ValidationErrors};
 pub fn register_handler(
     db: web::Data<Pool>,
     item: web::Form<InputUserRegister>,
-) -> Result<User, ValidationErrors> {
+) -> Result<ResponseBody<String>, ValidationErrors> {
     let conn = db.get().unwrap();
     let hashed = hash(&item.password, DEFAULT_COST).unwrap();
     let new_user = NewUser {
@@ -33,8 +33,9 @@ pub fn register_handler(
     
     match item.validate() {
         Ok(_) => {
-            let res = insert_into(users).values(new_user).get_result(&conn).unwrap();
-            Ok(res)
+            let res: User = insert_into(users).values(new_user).get_result(&conn).unwrap();
+            
+            Ok(ResponseBody::new("You are successfully registered", res.email.to_string()))
         },
         Err(err) => Err(err)
     }
@@ -63,9 +64,9 @@ pub fn login_handler(
                         &EncodingKey::from_secret(key)
                     ).unwrap();
                     Ok(LoginResponse {
-                        status: true,
+                        username: found_user.name.to_string(),
                         token,
-                        message: "berhasil login".to_string()
+                        email: found_user.email.to_string(),
                     })
                 },
                 Ok(false) => Err(ServiceError::new(StatusCode::UNAUTHORIZED, constants::MESSAGE_LOGIN_FAILED.to_string())),
