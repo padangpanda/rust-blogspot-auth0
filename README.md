@@ -5,8 +5,8 @@ Instalation step-by-step API
 - git clone -b edo https://github.com/padangpanda/rust-blogspot-auth0.git
 - cd rust-blogspot-auth0
 - buat file .env di folder sejajar /src dan cargo.toml, lalu masukkan = 
-  - DATABASE_URL=postgres://<username postgres>:<password postgres>@localhost/auth0_demo?sslmode=disable
-  - TOKEN_KEY="<bebas token key apa aja>"
+  - DATABASE_URL=postgres://"username postgres":"password postgres"@localhost/auth0_demo?sslmode=disable
+  - TOKEN_KEY="bebas token key apa aja"
 - jalankan di terminal = cargo install diesel_cli --no-default-features --features postgres
 - tambahan setting untuk linux, install lewat terminal = sudo apt-get install libpq-dev
   - refer dokumentasi = https://github.com/diesel-rs/diesel/blob/master/guide_drafts/backend_installation.md
@@ -14,7 +14,7 @@ Instalation step-by-step API
 - untuk lebih amannya jalankan = cargo build (proses compile agak lama, mohon bersabar)
 - setelah semua step diatas sudah tidak ada error, jalankan di terminal = diesel migration run
   - step tambahan = check di GUI postgres masing2 apakah table "Users" sudah terbuat, dan terdapat kolom "email, password, name"
-- untuk menjalankan hot reload di terminal = cargo watch -x run
+- untuk menjalankan hot reload di terminal = cargo watch -x run (bila belom bisa menjalankan cargo watch, bisa install lewat command "cargo install cargo-watch")
 - selamat API sudah berjalan di local anda
 
 Endpoint API
