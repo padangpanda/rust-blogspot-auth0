@@ -1,6 +1,6 @@
-# rust-blogspot-auth0
+### rust-blogspot-auth0
 
-Instalation step-by-step API
+## Instalation step-by-step API
 
 - git clone -b edo https://github.com/padangpanda/rust-blogspot-auth0.git
 - cd rust-blogspot-auth0
@@ -17,8 +17,8 @@ Instalation step-by-step API
 - untuk menjalankan hot reload di terminal = cargo watch -x run (bila belom bisa menjalankan cargo watch, bisa install lewat command "cargo install cargo-watch")
 - selamat API sudah berjalan di local anda
 
-Endpoint API
-##POST /register
+### Endpoint API
+## POST /register
 
 Request Body
 ```json
@@ -60,7 +60,7 @@ Response error Internal_Server_Error 500
 "data": ""
 }
 ```
-##POST /login
+## POST /login
 
 Request Body
 ```json
