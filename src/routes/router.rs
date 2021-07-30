@@ -10,7 +10,7 @@ pub async fn register(
 ) -> Result<HttpResponse, Error> {
     match register_handler(db, item) {
         Ok(result) => Ok(HttpResponse::Created().json(result)),
-        Err(e) => Ok(HttpResponse::BadRequest().json(e))
+        Err(e) => Ok(e.response())
     }
 }
 

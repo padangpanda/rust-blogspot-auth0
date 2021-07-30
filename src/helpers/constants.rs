@@ -8,6 +8,7 @@ pub const MESSAGE_CAN_NOT_UPDATE_DATA: &str = "Can not update data";
 pub const MESSAGE_CAN_NOT_DELETE_DATA: &str = "Can not delete data";
 pub const MESSAGE_SIGNUP_SUCCESS: &str = "Signup successfully";
 pub const MESSAGE_SIGNUP_FAILED: &str = "Error while signing up, please try again";
+pub const MESSAGE_SIGNUP_EMAIL_ALREADY_USED: &str = "Email is already used.";
 pub const MESSAGE_LOGIN_SUCCESS: &str = "Login successfully";
 pub const MESSAGE_LOGIN_FAILED: &str = "Wrong username or password, please try again";
 pub const MESSAGE_USER_NOT_FOUND: &str = "User not found, please signup";

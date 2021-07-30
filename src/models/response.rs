@@ -11,11 +11,6 @@ pub struct LoginResponse {
     pub token: String,
 }
 
-// #[derive(Serialize, Deserialize, Debug)]
-// pub struct RegisterResponse {
-//     pub message: String,
-// }
-
 // EROR RESPONSE
 #[derive(Debug)]
 pub struct ServiceError {

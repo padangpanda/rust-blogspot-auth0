@@ -1,16 +1,16 @@
 #[macro_use]
 extern crate diesel;
+extern crate actix_cors;
 
-use actix_web::{web, App, HttpServer};
-// use actix_web_httpauth::middleware::HttpAuthentication;
+use actix_web::{http, web, App, HttpServer};
 use diesel::prelude::*;
 use diesel::r2d2::{self, ConnectionManager};
+use actix_cors::Cors;
 
 mod routes;
 mod errors;
 mod models;
 mod schema;
-mod auth;
 mod controllers;
 mod helpers;
 
@@ -37,14 +37,23 @@ async fn main() -> std::io::Result<()> {
         
         App::new()
             // .wrap(auth)
+            .wrap(Cors::default() // allowed_origin return access-control-allow-origin: * by default
+            .allowed_origin("http://127.0.0.1:3000")
+            .allowed_origin("http://localhost:3000")
+                .send_wildcard()
+                .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+                .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+                .allowed_header(http::header::CONTENT_TYPE)
+                .max_age(3600))
             .data(pool.clone())
+            .wrap(actix_web::middleware::Logger::default())
             .route("/users", web::get().to(router::get_users))
             .route("/users/{id}", web::get().to(router::get_user_by_id))
             .route("/register", web::post().to(router::register))
             .route("/login", web::post().to(router::login))
             .route("/users/{id}", web::delete().to(router::delete_user))
     })
-    .bind("127.0.0.1:8080")?
+    .bind("127.0.0.1:8008")?
     .run()
     .await
 }
