@@ -5,7 +5,7 @@ use crate::{
     Pool,
     models::{
         response::{LoginResponse, ServiceError, ResponseBody},
-        models::{NewUser, User, InputUserRegister, InputUserLogin, Claims}
+        tables::account::{NewAccount, Account, InputAccountRegister, InputAccountLogin, Claims}
     },
     schema::users,
     schema::users::dsl::*,
@@ -20,11 +20,11 @@ use validator::{Validate};
 
 pub fn register_handler(
     db: web::Data<Pool>,
-    item: web::Form<InputUserRegister>,
+    item: web::Form<InputAccountRegister>,
 ) -> Result<ResponseBody<String>, ServiceError> {
     let conn = db.get().unwrap();
     let hashed = hash(&item.password, 8).unwrap();
-    let new_user = NewUser {
+    let new_user = NewAccount {
         name: &item.name,
         password: &hashed,
         email: &item.email,
@@ -78,21 +78,4 @@ pub fn login_handler(
         Err(_) => Err(ServiceError::new(StatusCode::UNAUTHORIZED, constants::MESSAGE_USER_NOT_FOUND.to_string()))
     
     }
-}
-
-pub fn get_all_users(pool: web::Data<Pool>) -> Result<Vec<User>, diesel::result::Error> {
-    let conn = pool.get().unwrap();
-    let items = users.load::<User>(&conn)?;
-    Ok(items)
-}
-
-pub fn db_get_user_by_id(pool: web::Data<Pool>, user_id: i32) -> Result<User, diesel::result::Error> {
-    let conn = pool.get().unwrap();
-    users.find(user_id).get_result::<User>(&conn)
-}
-
-pub fn delete_single_user(db: web::Data<Pool>, user_id: i32) -> Result<usize, diesel::result::Error> {
-    let conn = db.get().unwrap();
-    let count = delete(users.find(user_id)).execute(&conn)?;
-    Ok(count)
 }

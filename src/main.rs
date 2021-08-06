@@ -18,7 +18,6 @@ use routes::router;
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -33,10 +32,7 @@ async fn main() -> std::io::Result<()> {
 
     // Start http server
     HttpServer::new(move || {
-        // let auth = HttpAuthentication::bearer(auth::auth::validator);
-        
         App::new()
-            // .wrap(auth)
             .wrap(Cors::default() // allowed_origin return access-control-allow-origin: * by default
             .allowed_origin("http://127.0.0.1:3000")
             .allowed_origin("http://localhost:3000")
@@ -47,11 +43,8 @@ async fn main() -> std::io::Result<()> {
                 .max_age(3600))
             .data(pool.clone())
             .wrap(actix_web::middleware::Logger::default())
-            .route("/users", web::get().to(router::get_users))
-            .route("/users/{id}", web::get().to(router::get_user_by_id))
             .route("/register", web::post().to(router::register))
             .route("/login", web::post().to(router::login))
-            .route("/users/{id}", web::delete().to(router::delete_user))
     })
     .bind("127.0.0.1:8008")?
     .run()
