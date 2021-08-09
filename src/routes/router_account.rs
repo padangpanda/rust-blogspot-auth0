@@ -1,4 +1,4 @@
-use crate::controllers::controller::*;
+use crate::controllers::controller_account::*;
 use crate::Pool;
 use crate::models::tables::account::{InputAccountRegister, InputAccountLogin};
 use actix_web::{web, Error, HttpResponse};

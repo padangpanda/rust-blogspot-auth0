@@ -14,7 +14,7 @@ mod schema;
 mod controllers;
 mod helpers;
 
-use routes::router;
+use routes::router_account;
 
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
@@ -43,8 +43,8 @@ async fn main() -> std::io::Result<()> {
                 .max_age(3600))
             .data(pool.clone())
             .wrap(actix_web::middleware::Logger::default())
-            .route("/register", web::post().to(router::register))
-            .route("/login", web::post().to(router::login))
+            .route("/register", web::post().to(router_account::register))
+            .route("/login", web::post().to(router_account::login))
     })
     .bind("127.0.0.1:8008")?
     .run()
